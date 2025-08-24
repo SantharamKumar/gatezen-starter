@@ -1,35 +1,28 @@
-// Tiny auth helpers using localStorage
-
+// frontend/src/lib/auth.js
 const KEY = 'user';
 
-/** Return the saved user object (or null). */
+export function setUser(user) {
+  localStorage.setItem(KEY, JSON.stringify(user));
+}
+
 export function getUser() {
   try {
-    return JSON.parse(localStorage.getItem(KEY) || 'null');
+    const raw = localStorage.getItem(KEY);
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-/** Save the logged-in user object (from /auth/login response). */
-export function setUser(user) {
-  localStorage.setItem(KEY, JSON.stringify(user));
-}
-
-/** Remove user and effectively log out. */
 export function clearUser() {
   localStorage.removeItem(KEY);
 }
 
-/** Boolean: is someone logged in? */
 export function isAuthed() {
   return !!getUser();
 }
 
-/** Optional: convenience accessors */
-export function getUserEmail() {
-  return getUser()?.email || null;
-}
-export function getUserId() {
-  return getUser()?.id || null;
+export function isAdmin() {
+  const u = getUser();
+  return !!u && u.role === 'admin';
 }

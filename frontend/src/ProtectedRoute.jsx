@@ -1,16 +1,21 @@
+// frontend/src/ProtectedRoute.jsx
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { isAuthed } from "./lib/auth";
+import { isAuthed, getUser } from "./lib/auth";
 
-/**
- * Wrap any route element with <ProtectedRoute> to require login.
- * If not authenticated, redirects to "/" and keeps the intended path in state.
- */
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, allowedRoles }) {
   const location = useLocation();
 
   if (!isAuthed()) {
     return <Navigate to="/" replace state={{ from: location.pathname }} />;
   }
+
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+    const user = getUser();
+    if (!user || !allowedRoles.includes(user.role)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
   return children;
 }
